@@ -42,7 +42,7 @@ pipeline {
         
         stage('Test'){
             steps{
-                sh 'mvn -s settings.xml test'
+                sh 'mvenn -s settings.xml test'
             }
         }
 
