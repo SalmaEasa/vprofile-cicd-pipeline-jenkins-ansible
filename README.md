@@ -7,6 +7,8 @@ This repository contains the complete **Jenkins CI Pipeline** for the vProfile J
 ## 🏗 System Architecture
 The infrastructure is hosted on **AWS EC2**, utilizing a distributed 3-server architecture to ensure resource isolation and optimal performance.
 
+![System Architecture](./Diagrams/image.png)
+
 * **Jenkins Server**: Orchestrates the CI pipeline and executes Maven builds.
 * **SonarQube Server**: Performs static code analysis and quality gate checks.
 * **Nexus Repository Manager**: Manages internal releases and caches external dependencies.
@@ -20,7 +22,6 @@ vprofile-jenkins-ci-automation/
 │   ├── main/               # Application logic & web assets
 │   └── test/               # Unit and Integration tests
 ├── userdata/               # EC2 Provisioning scripts
-├── .gitignore              # Version control exclusions
 ├── Jenkinsfile             # Declarative Pipeline-as-Code
 ├── pom.xml                 # Maven Project Configuration
 ├── README.md               # Project documentation
