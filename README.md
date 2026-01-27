@@ -26,53 +26,61 @@ vprofile-jenkins-ci-automation/
 ├── README.md               # Project documentation
 └── settings.xml            # Nexus authentication configuration
 
-## 🚀 Pipeline Workflow
-Developer Push: Triggered by a GitHub Webhook.
+---
 
-Build Stage: Compiled using Maven and JDK 17.
+## 🚀 Pipeline Workflow 
+* Developer Push: Triggered by a GitHub Webhook.
 
-Code Analysis: Analyzed by SonarScanner for security and bugs.
+*Build Stage: Compiled using Maven and JDK 17.
 
-Quality Gate: Automated check to ensure code meets standards.
+*Code Analysis: Analyzed by SonarScanner for security and bugs.
 
-Artifact Upload: .war files versioned and pushed to Nexus.
+*Quality Gate: Automated check to ensure code meets standards.
 
-Real-time Alerts: Status updates sent to Slack.
+*Artifact Upload: .war files versioned and pushed to Nexus.
 
-🛠 Project Roadmap (Steps Taken)
-Phase 1: Infrastructure Setup
+*Real-time Alerts: Status updates sent to Slack.
+
+---
+
+## 🛠 Project Roadmap (Steps Taken)
+* **Phase 1: Infrastructure Setup**
 AWS Environment: Configured Security Groups for ports 8080 (Jenkins), 8081 (Nexus), and 9000 (SonarQube).
 
 EC2 Provisioning: Launched instances with UserData scripts for automated tool installation.
 
 Nexus Repositories: Implemented a 4-repo strategy: Proxy, Release, Snapshot, and Group.
 
-Phase 2: Pipeline Development
+* **Phase 2: Pipeline Development**
 Git Migration: Migrated source code to a dedicated repository for CI testing.
 
 Maven Integration: Configured settings.xml with credentials for secure Nexus communication.
 
 SonarQube Integration: Configured a "Quality Gate" stage to ensure code meets security standards.
 
-Phase 3: Automation & Monitoring
+* **Phase 3: Automation & Monitoring**
 Webhooks: Enabled GitHub-to-Jenkins triggers for continuous integration.
 
 Slack Integration: Developed a Groovy-based notification block using a COLOR_MAP.
 
-💻 Tech Stack
-Cloud: AWS (EC2, EBS, Security Groups)
+---
 
-CI/CD: Jenkins (Declarative Pipeline)
+##  💻 Tech Stack
+*Cloud: AWS (EC2, EBS, Security Groups)
 
-Build Tool: Maven
+*CI/CD: Jenkins (Declarative Pipeline)
 
-Quality Gate: SonarQube
+*Build Tool: Maven
 
-Artifacts: Sonatype Nexus
+*Quality Gate: SonarQube
 
-SCM: GitHub (Webhooks)
+*Artifacts: Sonatype Nexus
 
-Communication: Slack
+*SCM: GitHub (Webhooks)
+
+*Communication: Slack
+
+---
 
 ## 🔧 Infrastructure & Engineering Challenges
 
@@ -82,11 +90,13 @@ Communication: Slack
 | **Dependency Latency** | Slow build times (5+ mins) caused by repetitive downloads from Maven Central. | Configured a **Proxy Repository** in Nexus to cache dependencies locally, reducing subsequent build times by **~40%**. |
 | **Pipeline Syntax Errors** | Jenkins build failures caused by complex nesting in the `environment` block. | Refactored the **Declarative Jenkinsfile** to resolve Groovy nesting issues and standardized Global Tool paths for JDK 17. |
 
-📦 How to Use
-Infrastructure: Provision 3 EC2 instances (Ubuntu/Amazon Linux).
+---
 
-Setup: Install JDK 17, Maven, and necessary Jenkins plugins.
+## 📦 How to Use
+**Infrastructure**: Provision 3 EC2 instances (Ubuntu/Amazon Linux).
 
-Configuration: Update environment variables in the Jenkinsfile with your specific server IPs.
+**Setup**: Install JDK 17, Maven, and necessary Jenkins plugins.
 
-Execution: Push code to the main branch and monitor the Jenkins dashboard.
+**Configuration**: Update environment variables in the Jenkinsfile with your specific server IPs.
+
+**Execution**: Push code to the main branch and monitor the Jenkins dashboard.
