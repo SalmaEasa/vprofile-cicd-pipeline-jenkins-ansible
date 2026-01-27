@@ -25,60 +25,58 @@ vprofile-jenkins-ci-automation/
 ├── pom.xml                 # Maven Project Configuration
 ├── README.md               # Project documentation
 └── settings.xml            # Nexus authentication configuration
-
+```
 ---
 
-## 🚀 Pipeline Workflow 
-* Developer Push: Triggered by a GitHub Webhook.
+## 🚀 Pipeline Workflow
 
-*Build Stage: Compiled using Maven and JDK 17.
-
-*Code Analysis: Analyzed by SonarScanner for security and bugs.
-
-*Quality Gate: Automated check to ensure code meets standards.
-
-*Artifact Upload: .war files versioned and pushed to Nexus.
-
-*Real-time Alerts: Status updates sent to Slack.
+- Developer Push: Triggered by a GitHub Webhook  
+- Build Stage: Compiled using Maven and JDK 17  
+- Code Analysis: Analyzed by SonarScanner for security and bugs  
+- Quality Gate: Automated check to ensure code meets standards  
+- Artifact Upload: `.war` files versioned and pushed to Nexus  
+- Real-time Alerts: Status updates sent to Slack  
 
 ---
 
 ## 🛠 Project Roadmap (Steps Taken)
-* **Phase 1: Infrastructure Setup**
-AWS Environment: Configured Security Groups for ports 8080 (Jenkins), 8081 (Nexus), and 9000 (SonarQube).
 
-EC2 Provisioning: Launched instances with UserData scripts for automated tool installation.
+### Phase 1: Infrastructure Setup
 
-Nexus Repositories: Implemented a 4-repo strategy: Proxy, Release, Snapshot, and Group.
+- AWS Environment: Configured Security Groups for ports 8080 (Jenkins), 8081 (Nexus), and 9000 (SonarQube).
 
-* **Phase 2: Pipeline Development**
-Git Migration: Migrated source code to a dedicated repository for CI testing.
+- EC2 Provisioning: Launched instances with UserData scripts for automated tool installation.
 
-Maven Integration: Configured settings.xml with credentials for secure Nexus communication.
+- Nexus Repositories: Implemented a 4-repo strategy: Proxy, Release, Snapshot, and Group.
 
-SonarQube Integration: Configured a "Quality Gate" stage to ensure code meets security standards.
+### Phase 2: Pipeline Development
+- Git Migration: Migrated source code to a dedicated repository for CI testing.
 
-* **Phase 3: Automation & Monitoring**
-Webhooks: Enabled GitHub-to-Jenkins triggers for continuous integration.
+- Maven Integration: Configured settings.xml with credentials for secure Nexus communication.
 
-Slack Integration: Developed a Groovy-based notification block using a COLOR_MAP.
+- SonarQube Integration: Configured a "Quality Gate" stage to ensure code meets security standards.
+
+### Phase 3: Automation & Monitoring
+- Webhooks: Enabled GitHub-to-Jenkins triggers for continuous integration.
+
+- Slack Integration: Developed a Groovy-based notification block using a COLOR_MAP.
 
 ---
 
 ##  💻 Tech Stack
-*Cloud: AWS (EC2, EBS, Security Groups)
+* Cloud: AWS (EC2, EBS, Security Groups)
 
-*CI/CD: Jenkins (Declarative Pipeline)
+* CI/CD: Jenkins (Declarative Pipeline)
 
-*Build Tool: Maven
+* Build Tool: Maven
 
-*Quality Gate: SonarQube
+* Quality Gate: SonarQube
 
-*Artifacts: Sonatype Nexus
+* Artifacts: Sonatype Nexus
 
-*SCM: GitHub (Webhooks)
+* SCM: GitHub (Webhooks)
 
-*Communication: Slack
+* Communication: Slack
 
 ---
 
