@@ -15,7 +15,7 @@ pipeline {
 
         SNAP_REPO = 'vprofile-snapshot'
 		NEXUS_USER = 'admin'
-		NEXUS_PASS = 'admin123'
+		NEXUS_PASS = credentials('nexuspass')
 		RELEASE_REPO = 'vprofile-release'
 		CENTRAL_REPO = 'vpro-maven-central'
 		NEXUSIP = '172.31.0.175'
@@ -24,6 +24,7 @@ pipeline {
         NEXUS_LOGIN = 'nexuslogin'        
         SONARSERVER = 'sonarserver'
         SONARSCANNER = 'sonarscanner'
+
 
     }
 
@@ -89,6 +90,30 @@ pipeline {
                         classifier: '',
                         file: 'target/vprofile-v2.war',
                         type: 'war']
+                    ]
+                )
+            }
+        }
+
+        stage('Ansible Deploy to staging') {
+            steps {
+                ansiblePlaybook(
+                    playbook: 'ansible/site.yml',
+                    inventory: 'ansible/stage.inventory',
+                    installation: 'ansible',
+                    colorized: true,
+                    credentialsId: 'applogin',
+                    disableHostKeyChecking: true,                    
+                    extraVars: [
+                        USER: "${NEXUS_USER}",
+                        PASS: "${NEXUS_PASS}",
+                        nexusip: "${NEXUSIP}",
+                        reponame: "${RELEASE_REPO}",
+                        groupid: 'QA',
+                        artifactid: 'vproapp',
+                        build: "${env.BUILD_ID}",
+                        time: "${env.BUILD_TIMESTAMP}",
+                        vprofile_version: "vproapp-${env.BUILD_ID}-${env.BUILD_TIMESTAMP}.war"
                     ]
                 )
             }
