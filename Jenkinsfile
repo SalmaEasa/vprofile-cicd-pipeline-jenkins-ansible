@@ -100,30 +100,6 @@ pipeline {
             }
         }
 
-        stage('Ansible Deploy to staging') {
-            steps {
-                ansiblePlaybook(
-                    playbook: 'ansible/site.yml',
-                    inventory: 'ansible/stage.inventory',
-                    installation: 'ansible',
-                    colorized: true,
-                    credentialsId: 'applogin',
-                    disableHostKeyChecking: true,                    
-                    extraVars: [
-                        USER: "${NEXUS_USER}",
-                        PASS: "${NEXUS_PASS}",
-                        nexusip: "${NEXUSIP}",
-                        reponame: "${RELEASE_REPO}",
-                        groupid: 'QA',
-                        artifactid: 'vproapp',
-                        build: "${env.BUILD_ID}",
-                        time: "${env.BUILD_TIMESTAMP}",
-                        vprofile_version: "vproapp-${env.BUILD_ID}-${env.BUILD_TIMESTAMP}.war"
-                    ]
-                )
-            }
-        }
-
         stage('Deploy to Stage Bean'){
             steps{
                 withAWS(credentials: 'awsbeancreds', region: 'us-east-1'){
