@@ -1,101 +1,130 @@
-# 🚀 vProfile Multitier Java Stack: Automated CI Pipeline
-##
-This repository contains the complete **Jenkins CI Pipeline** for the vProfile Java application. The project demonstrates a production-grade DevOps workflow, ensuring every code push is automatically built, analyzed, and stored.
+# 🚀 vProfile Multitier Java Stack: Complete CI/CD Pipeline Collection
+
+This repository contains **multiple production-grade Jenkins CI/CD pipelines** for the vProfile Java application, demonstrating two distinct deployment strategies on AWS.
 
 ---
 
-## 🏗 System Architecture
-The infrastructure is hosted on **AWS EC2**, utilizing a distributed 3-server architecture to ensure resource isolation and optimal performance.
+## 🗂 Branch Overview
 
-![System Architecture](./Diagrams/image.png)
+| Branch | Pipeline | Deployment Target |
+| :--- | :--- | :--- |
+| `cicd-jenkins` | CI only — Build, Test, Sonar, Nexus upload | None |
+| `cicd-jenkins-prod` | CD — Manual production deploy | Ansible → EC2 (Tomcat) |
+| `cicd-jenkins-bean-stage` | CI/CD — Full pipeline with auto staging deploy | AWS Elastic Beanstalk (Staging) |
+| `cicd-jenkins-bean-prod` | CD — Automatic production promotion | AWS Elastic Beanstalk (Production) |
+| `main` | Latest merged state | — |
 
-* **Jenkins Server**: Orchestrates the CI pipeline and executes Maven builds.
-* **SonarQube Server**: Performs static code analysis and quality gate checks.
-* **Nexus Repository Manager**: Manages internal releases and caches external dependencies.
+---
+
+## 🏗 Project 1: Jenkins + Ansible Pipeline (cicd-jenkins / cicd-jenkins-prod)
+
+Infrastructure hosted on **AWS EC2** with a distributed 3-server CI architecture and Ansible-based deployment.
+
+![CI/CD Architecture](./digrams%20for%20cicd%20pipeline/cicd_diagram.png)
+
+### Servers
+- **Jenkins Server**: Orchestrates the pipeline and triggers Ansible deployments
+- **SonarQube Server**: Static code analysis and quality gate checks
+- **Nexus Repository Manager**: Artifact storage and dependency caching
+- **Staging App Server**: Auto-deployed via Ansible on every CI success
+- **Production App Server**: Manually promoted using `BUILD` and `TIME` parameters
+
+### CI/CD Flow
+- Developer Push → GitHub Webhook → Jenkins triggered
+- Build → Test → Sonar Analysis → Quality Gate
+- Upload `.war` to Nexus (versioned as `BUILD_ID-TIMESTAMP`)
+- Ansible provisions Tomcat and deploys artifact from Nexus to staging
+- Manual trigger on `cicd-jenkins-prod` promotes exact artifact to production
+
+---
+
+## 🏗 Project 2: Jenkins + Elastic Beanstalk Pipeline (cicd-jenkins-bean-stage / cicd-jenkins-bean-prod)
+
+A hybrid cloud-native deployment strategy replacing Ansible+EC2 with **AWS Elastic Beanstalk**, eliminating the need to manage app servers manually.
+
+### What's New
+- No Ansible, no app server management — Beanstalk handles infrastructure automatically
+- Artifact uploaded directly to **S3**, then deployed to Beanstalk via AWS CLI
+- Production pipeline auto-detects the last successful staging build number — no manual parameter entry
+- AWS credentials managed securely via Jenkins `awsbeancreds` credential
+
+### CI/CD Flow (Staging)
+- Developer Push → GitHub Webhook → Jenkins triggered
+- Build → Test → Sonar Analysis → Quality Gate
+- Upload `.war` to Nexus + upload to **S3 bucket** (`vprofile-cicd-bean`)
+- Create Beanstalk application version from S3
+- Deploy to `Vpro-bean-env` (staging environment)
+
+### CD Flow (Production)
+- Triggered automatically after staging success
+- Auto-fetches `lastSuccessfulBuild` number from the staging job — zero manual input
+- Deploys the same S3 artifact version to `Vpro-beanstalk-prod-env`
 
 ---
 
 ## 📂 Project Structure
 ```text
 vprofile-jenkins-ci-automation/
-├── src/                    # Java source code (Spring Boot)
-│   ├── main/               # Application logic & web assets
-│   └── test/               # Unit and Integration tests
-├── userdata/               # EC2 Provisioning scripts
-├── Jenkinsfile             # Declarative Pipeline-as-Code
-├── pom.xml                 # Maven Project Configuration
-├── README.md               # Project documentation
-└── settings.xml            # Nexus authentication configuration
+├── ansible/                        # Ansible playbooks (cicd-jenkins branches)
+│   ├── templates/                  # Tomcat service file templates
+│   ├── ansible.cfg
+│   ├── site.yml                    # Master playbook
+│   ├── tomcat_setup.yml
+│   ├── vpro-app-setup.yml
+│   ├── stage.inventory
+│   └── prod.inventory
+├── src/                            # Java source code (Spring MVC)
+├── userdata/                       # EC2 provisioning scripts
+│   ├── jenkins-setup.sh            # Jenkins (Ubuntu)
+│   ├── nexus-setup.sh              # Nexus (Amazon Linux 2023)
+│   └── sonar-setup.sh              # SonarQube (Ubuntu)
+├── Diagrams for ci pipeline/       # CI-only pipeline screenshots
+├── digrams for cicd pipeline/      # CI/CD Ansible pipeline screenshots
+├── Jenkinsfile                     # Active branch pipeline definition
+├── pom.xml
+├── README.md
+└── settings.xml
 ```
----
-
-## 🚀 Pipeline Workflow
-
-- Developer Push: Triggered by a GitHub Webhook  
-- Build Stage: Compiled using Maven and JDK 17  
-- Code Analysis: Analyzed by SonarScanner for security and bugs  
-- Quality Gate: Automated check to ensure code meets standards  
-- Artifact Upload: `.war` files versioned and pushed to Nexus  
-- Real-time Alerts: Status updates sent to Slack  
 
 ---
 
-## 🛠 Project Roadmap (Steps Taken)
+## 💻 Tech Stack
 
-### Phase 1: Infrastructure Setup
-
-- AWS Environment: Configured Security Groups for ports 8080 (Jenkins), 8081 (Nexus), and 9000 (SonarQube).
-
-- EC2 Provisioning: Launched instances with UserData scripts for automated tool installation.
-
-- Nexus Repositories: Implemented a 4-repo strategy: Proxy, Release, Snapshot, and Group.
-
-### Phase 2: Pipeline Development
-- Git Migration: Migrated source code to a dedicated repository for CI testing.
-
-- Maven Integration: Configured settings.xml with credentials for secure Nexus communication.
-
-- SonarQube Integration: Configured a "Quality Gate" stage to ensure code meets security standards.
-
-### Phase 3: Automation & Monitoring
-- Webhooks: Enabled GitHub-to-Jenkins triggers for continuous integration.
-
-- Slack Integration: Developed a Groovy-based notification block using a COLOR_MAP.
+| Layer | Jenkins + Ansible | Jenkins + Beanstalk |
+| :--- | :--- | :--- |
+| Cloud | AWS EC2, EBS, Route 53 | AWS S3, Elastic Beanstalk, Route 53 |
+| CI/CD | Jenkins Declarative Pipeline | Jenkins Declarative Pipeline |
+| Deployment | Ansible | AWS CLI + Beanstalk |
+| Build | Maven + JDK 11 | Maven + JDK 11 |
+| Quality Gate | SonarQube 8.3 | SonarQube 8.3 |
+| Artifacts | Sonatype Nexus 3.75 | Sonatype Nexus + S3 |
+| App Server | Apache Tomcat 8.5 (self-managed) | Beanstalk-managed Tomcat |
+| Notifications | Slack | Slack |
 
 ---
 
-##  💻 Tech Stack
-* Cloud: AWS (EC2, EBS, Security Groups)
-
-* CI/CD: Jenkins (Declarative Pipeline)
-
-* Build Tool: Maven
-
-* Quality Gate: SonarQube
-
-* Artifacts: Sonatype Nexus
-
-* SCM: GitHub (Webhooks)
-
-* Communication: Slack
-
----
-
-## 🔧 Infrastructure & Engineering Challenges
+## 🔧 Engineering Challenges
 
 | 🚩 Challenge | 📉 Impact | 🛠️ Resolution |
 | :--- | :--- | :--- |
-| **Nexus Storage Failure** | **500 Internal Server Error** during artifact upload due to 82%+ disk utilization. | Modified AWS EBS volume (8GB → 20GB). Performed a live resize of the **XFS filesystem** using `growpart` and `xfs_growfs` to prevent data loss. |
-| **Dependency Latency** | Slow build times (5+ mins) caused by repetitive downloads from Maven Central. | Configured a **Proxy Repository** in Nexus to cache dependencies locally, reducing subsequent build times by **~40%**. |
-| **Pipeline Syntax Errors** | Jenkins build failures caused by complex nesting in the `environment` block. | Refactored the **Declarative Jenkinsfile** to resolve Groovy nesting issues and standardized Global Tool paths for JDK 17. |
+| **Nexus CDN Outage** | `latest-unix.tar.gz` returned 404 — provisioning failed | Pinned to `nexus-3.75.1-01` directly from Sonatype CDN |
+| **Java/SonarQube Incompatibility** | SonarQube 8.3 crashed with `cglib` reflection errors under Java 21 | Downgraded pipeline to JDK 11 |
+| **Jenkins /tmp Disk Threshold** | Node taken offline — `/tmp` tmpfs (980MB) below Jenkins 1GiB threshold | Remounted `/tmp` as 2GB and persisted via `/etc/fstab` |
+| **Artifact URL Spaces** | Ansible `get_url` failed — `BUILD_TIMESTAMP` spaces broke Nexus URL | Changed timestamp format to `yyyyMMdd_HHmmss` |
+| **Nexus Storage Failure** | 500 error during upload — 82%+ disk utilization | Resized EBS (8GB → 20GB), grew XFS filesystem live |
+| **Dependency Latency** | 5+ min builds due to Maven Central downloads | Nexus Proxy Repository reduced build times by ~40% |
 
 ---
 
-## 📦 How to Use
-**Infrastructure**: Provision 3 EC2 instances (Ubuntu/Amazon Linux).
+## 📸 Screenshots
 
-**Setup**: Install JDK 17, Maven, and necessary Jenkins plugins.
-
-**Configuration**: Update environment variables in the Jenkinsfile with your specific server IPs.
-
-**Execution**: Push code to the main branch and monitor the Jenkins dashboard.
+### CI/CD Pipeline (Ansible)
+![CI Pipeline](./digrams%20for%20cicd%20pipeline/ci-pipeline.png)
+![Prod Pipeline](./digrams%20for%20cicd%20pipeline/prod%20pipeline.png)
+![EC2 Instances](./digrams%20for%20cicd%20pipeline/ec2%20instances.png)
+![Nexus Repo](./digrams%20for%20cicd%20pipeline/nexus%20repo.png)
+![SonarQube](./digrams%20for%20cicd%20pipeline/sonarqube%20passed.png)
+![Slack](./digrams%20for%20cicd%20pipeline/slack-notifications.png)
+![Route 53](./digrams%20for%20cicd%20pipeline/route53%20records.png)
+![Staging App](./digrams%20for%20cicd%20pipeline/login%20page%20using%20app%20stage%20server.png)
+![Prod App](./digrams%20for%20cicd%20pipeline/login%20page%20using%20app%20prod%20server.png)
