@@ -1,5 +1,5 @@
 # 🚀 vProfile Multitier Java Stack: Automated CI Pipeline
-########
+##
 This repository contains the complete **Jenkins CI Pipeline** for the vProfile Java application. The project demonstrates a production-grade DevOps workflow, ensuring every code push is automatically built, analyzed, and stored.
 
 ---
